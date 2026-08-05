@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TICKER</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23161513'/%3E%3Cpath d='M20 65 L40 45 L55 58 L80 30' stroke='%2337835B' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="TICKER">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root {
+    --paper: #F7F5F1;
+    --ink: #161513;
+    --ink-soft: #4a4844;
+    --rule: #d8d4cc;
+    --up: #37835B;
+    --down: #B8342E;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    -webkit-font-smoothing: antialiased;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 20px 20px 14px;
+    max-width: 760px;
+    margin: 0 auto;
+    position: sticky;
+    top: env(safe-area-inset-top);
+    background: var(--paper);
+    z-index: 10;
+  }
+
+  .masthead-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wordmark {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.24em;
+  }
+
+  .refresh-btn {
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    background: none;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    padding: 6px 10px;
+    border-radius: 3px;
+  }
+  .refresh-btn:active { background: var(--ink); color: var(--paper); }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 10px;
+    color: var(--ink-soft);
+  }
+
+  .add-row {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 14px 20px 0;
+    display: flex;
+    gap: 8px;
+  }
+
+  .add-row input {
+    flex: 1;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 10px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .add-row input:focus { outline: 1px solid var(--ink); }
+
+  .add-row button {
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 0 16px;
+    border-radius: 4px;
+  }
+  .add-row button:active { opacity: 0.8; }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  .list {
+    margin-top: 10px;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+    gap: 12px;
+  }
+
+  .row-left { min-width: 0; }
+
+  .symbol {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+  }
+
+  .name {
+    font-family: Georgia, serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .price {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .change {
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  .change.up { color: var(--up); }
+  .change.down { color: var(--down); }
+
+  .remove-x {
+    font-size: 14px;
+    color: var(--ink-soft);
+    padding: 4px 6px;
+    flex-shrink: 0;
+  }
+
+  .empty, .loading-msg {
+    padding: 50px 0;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 16px 20px 40px;
+    border-top: 2px solid var(--ink);
+    font-size: 9.5px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="masthead-row">
+    <span class="wordmark">TICKER</span>
+    <button class="refresh-btn" id="refreshBtn">REFRESH</button>
+  </div>
+  <div class="status-row">
+    <span id="statusText">loading…</span>
+    <span id="lastUpdated"></span>
+  </div>
+</header>
+
+<div class="add-row">
+  <input type="text" id="tickerInput" placeholder="ADD TICKER (e.g. AAPL)" maxlength="8">
+  <button id="addBtn">ADD</button>
+</div>
+
+<main>
+  <div class="list" id="list">
+    <div class="loading-msg">Fetching live quotes…</div>
+  </div>
+</main>
+
+<footer>
+  LIVE QUOTES — DELAYED PER SOURCE · NOT INVESTMENT ADVICE<br>
+  Save this page to your home screen for one-tap access.
+</footer>
+
+<script>
+const DEFAULT_TICKERS = ["NVDA","AMD","INTC","AMZN","MSFT","AVGO","VOO","QQQ","WMT","HOOD"];
+const STORAGE_KEY = "ticker_watchlist";
+const PROXY = "https://corsproxy.io/?url=";
+const QUOTE_API = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=";
+
+function getTickers() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) return JSON.parse(saved);
+  return DEFAULT_TICKERS;
+}
+
+function saveTickers(list) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+
+let tickers = getTickers();
+
+const listEl = document.getElementById('list');
+const statusText = document.getElementById('statusText');
+const lastUpdated = document.getElementById('lastUpdated');
+const refreshBtn = document.getElementById('refreshBtn');
+const tickerInput = document.getElementById('tickerInput');
+const addBtn = document.getElementById('addBtn');
+
+function fmtChange(pct) {
+  const sign = pct >= 0 ? "+" : "";
+  return sign + pct.toFixed(2) + "%";
+}
+
+async function fetchQuotes() {
+  if (tickers.length === 0) {
+    listEl.innerHTML = '<div class="empty">No tickers yet. Add one above.</div>';
+    statusText.textContent = "empty watchlist";
+    return;
+  }
+
+  statusText.textContent = "fetching…";
+  refreshBtn.disabled = true;
+
+  try {
+    const url = QUOTE_API + tickers.join(",");
+    const res = await fetch(PROXY + encodeURIComponent(url));
+    const data = await res.json();
+    const results = data.quoteResponse && data.quoteResponse.result ? data.quoteResponse.result : [];
+
+    if (results.length === 0) {
+      throw new Error("empty");
+    }
+
+    const bySymbol = {};
+    results.forEach(r => { bySymbol[r.symbol] = r; });
+
+    listEl.innerHTML = tickers.map(sym => {
+      const q = bySymbol[sym];
+      if (!q) {
+        return `<div class="row">
+          <div class="row-left">
+            <div class="symbol">${sym}</div>
+            <div class="name">not found</div>
+          </div>
+          <span class="remove-x" data-sym="${sym}">✕</span>
+        </div>`;
+      }
+      const changeClass = q.regularMarketChangePercent >= 0 ? "up" : "down";
+      const arrow = q.regularMarketChangePercent >= 0 ? "▲" : "▼";
+      return `<div class="row">
+        <div class="row-left">
+          <div class="symbol">${sym}</div>
+          <div class="name">${(q.shortName || q.longName || "").slice(0, 28)}</div>
+        </div>
+        <div class="row-right">
+          <div class="price">$${q.regularMarketPrice ? q.regularMarketPrice.toFixed(2) : "—"}</div>
+          <div class="change ${changeClass}">${arrow} ${fmtChange(q.regularMarketChangePercent || 0)}</div>
+        </div>
+        <span class="remove-x" data-sym="${sym}">✕</span>
+      </div>`;
+    }).join('');
+
+    document.querySelectorAll('.remove-x').forEach(el => {
+      el.addEventListener('click', () => {
+        tickers = tickers.filter(t => t !== el.dataset.sym);
+        saveTickers(tickers);
+        fetchQuotes();
+      });
+    });
+
+    statusText.textContent = tickers.length + " tickers live";
+    lastUpdated.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  } catch (e) {
+    statusText.textContent = "feed unavailable — tap refresh";
+    listEl.innerHTML = '<div class="empty">Could not load quotes. Tap refresh to retry.</div>';
+  } finally {
+    refreshBtn.disabled = false;
+  }
+}
+
+addBtn.addEventListener('click', () => {
+  const sym = tickerInput.value.trim().toUpperCase();
+  if (sym && !tickers.includes(sym)) {
+    tickers.push(sym);
+    saveTickers(tickers);
+    tickerInput.value = "";
+    fetchQuotes();
+  }
+});
+
+tickerInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') addBtn.click();
+});
+
+refreshBtn.addEventListener('click', fetchQuotes);
+fetchQuotes();
+</script>
+
+</body>
+</html>
