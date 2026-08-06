@@ -1,0 +1,1 @@
+{"name":"Mini Apps","short_name":"Mini Apps","start_url":"./index.html","scope":"./","display":"standalone","background_color":"#f2f0eb","theme_color":"#11100f","description":"Fast, privacy-friendly public-data dashboards.","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
