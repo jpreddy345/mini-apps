@@ -66,7 +66,7 @@ body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family
 <header class="topbar">
 <div class="brand">TICKER</div>
 <div class="actions">
-<a class="btn" href="index.html?v=3"><span class="homeText">HOME</span><span>⌂</span></a>
+<a class="btn" href="index.html"><span class="homeText">HOME</span><span>⌂</span></a>
 <button class="btn" id="resetBtn">RESET</button>
 <button class="btn primary" id="refreshBtn">REFRESH</button>
 </div>
@@ -101,12 +101,11 @@ body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family
 <section class="list" id="list"><div class="empty">Loading a snapshot…</div></section>
 </main>
 <nav class="bottomnav" aria-label="Mini Apps">
-<a href="index.html?v=3">HOME</a>
-<a href="wire.html?v=3">WIRE</a>
-<a class="active" href="ticker.html?v=3">TICKER</a>
+<a href="index.html">HOME</a>
+<a href="wire.html">WIRE</a>
+<a class="active" href="ticker.html">TICKER</a>
 </nav>
 <script>
-if(location.pathname.endsWith('.html')&&!location.search.includes('v=3'))location.replace(location.pathname+'?v=3'+location.hash);
 const DEFAULT=['NVDA','AMD','INTC','AMZN','MSFT','AVGO','VOO','QQQ','WMT','HOOD'],KEY='ticker_watchlist_v5',CACHE='ticker_cache_v5',API='https://query1.finance.yahoo.com/v7/finance/quote?symbols=',SEED={NVDA:{symbol:'NVDA',shortName:'NVIDIA Corporation',regularMarketPrice:193.05,regularMarketChangePercent:1.60},AMD:{symbol:'AMD',shortName:'Advanced Micro Devices, Inc.',regularMarketPrice:483.18,regularMarketChangePercent:12.48},INTC:{symbol:'INTC',shortName:'Intel Corp.',regularMarketPrice:101.65,regularMarketChangePercent:1.84},AMZN:{symbol:'AMZN',shortName:'Amazon.com, Inc.',regularMarketPrice:237.57,regularMarketChangePercent:4.82},MSFT:{symbol:'MSFT',shortName:'Microsoft Corporation',regularMarketPrice:455.61,regularMarketChangePercent:16.66},AVGO:{symbol:'AVGO',shortName:'Broadcom Inc.',regularMarketPrice:369.89,regularMarketChangePercent:-0.59},VOO:{symbol:'VOO',shortName:'Vanguard S&P 500 ETF',regularMarketPrice:691.18,regularMarketChangePercent:-0.31},QQQ:{symbol:'QQQ',shortName:'Invesco QQQ Trust',regularMarketPrice:727.95,regularMarketChangePercent:-0.32},WMT:{symbol:'WMT',shortName:'Walmart Inc.',regularMarketPrice:130.22,regularMarketChangePercent:0.11},HOOD:{symbol:'HOOD',shortName:'Robinhood Markets, Inc.',regularMarketPrice:90.48,regularMarketChangePercent:0.71}};
 const store={get:(k,f=null)=>{try{const v=localStorage.getItem(k);return v===null?f:JSON.parse(v)}catch{return f}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}},$=s=>document.querySelector(s),list=$('#list');
 let symbols=store.get(KEY,DEFAULT.slice()),quotes={},sort='custom';
@@ -130,7 +129,7 @@ function setStatus(text){updated.textContent=text}
 function market(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()),v=Object.fromEntries(parts.map(p=>[p.type,p.value])),mins=(Number(v.hour)%24)*60+Number(v.minute),open=!['Sat','Sun'].includes(v.weekday)&&mins>=570&&mins<960;marketText.textContent=open?'US MARKET OPEN':'US MARKET CLOSED';marketDot.classList.toggle('open',open)}
 async function load(){market();refreshBtn.disabled=true;applySeed();render();const cached=store.get(CACHE,{quotes:{},at:0});setStatus(cached.at?'SHOWING LAST KNOWN SNAPSHOT':'STARTING SNAPSHOT');if(!symbols.length){quotes={};render();refreshBtn.disabled=false;setStatus('EMPTY WATCHLIST');return}try{const rows=await fetchQuotes();if(rows.length){const liveQuotes={};rows.forEach(q=>liveQuotes[q.symbol]=q);quotes={...seed(),...liveQuotes};store.set(CACHE,{at:Date.now(),quotes:liveQuotes});setStatus('LIVE QUOTES UPDATED '+new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}))}else{setStatus(cached.at?'SHOWING LAST KNOWN SNAPSHOT':'SHOWING STARTING SNAPSHOT')}}catch{setStatus(cached.at?'SHOWING LAST KNOWN SNAPSHOT':'QUOTE FEED TEMPORARILY UNAVAILABLE')}finally{refreshBtn.disabled=false;render()}}
 function add(){const s=symbolInput.value.trim().toUpperCase().replace(/[^A-Z0-9.^-]/g,'').slice(0,12);if(!s)return;if(!symbols.includes(s)&&symbols.length<40){symbols.push(s);save();symbolInput.value='';applySeed();load()}else symbolInput.value=''}
-addBtn.onclick=add;symbolInput.onkeydown=e=>{if(e.key==='Enter')add()};refreshBtn.onclick=load;resetBtn.onclick=()=>{symbols=DEFAULT.slice();save();symbolInput.value='';applySeed();load()};clearBtn.onclick=()=>{symbols=[];quotes={};save();render();setStatus('EMPTY WATCHLIST')};document.querySelectorAll('.sort').forEach(b=>b.onclick=()=>{sort=b.dataset.sort;document.querySelectorAll('.sort').forEach(x=>x.classList.toggle('active',x===b));render()});addEventListener('online',load);save();applySeed();market();load();setInterval(market,60000);if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=3').catch(()=>{}));
+addBtn.onclick=add;symbolInput.onkeydown=e=>{if(e.key==='Enter')add()};refreshBtn.onclick=load;resetBtn.onclick=()=>{symbols=DEFAULT.slice();save();symbolInput.value='';applySeed();load()};clearBtn.onclick=()=>{symbols=[];quotes={};save();render();setStatus('EMPTY WATCHLIST')};document.querySelectorAll('.sort').forEach(b=>b.onclick=()=>{sort=b.dataset.sort;document.querySelectorAll('.sort').forEach(x=>x.classList.toggle('active',x===b));render()});addEventListener('online',load);save();applySeed();market();load();setInterval(market,60000);if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
