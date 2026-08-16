@@ -1,0 +1,407 @@
+<!doctype html><html lang="en" data-theme="auto"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100f"><meta name="description" content="High-beta NSE/BSE portfolio construction and risk-guardrail engine. Advisory only."><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><title>ALPHAVEDA — Mini Apps</title><style>
+:root{--bg:#f2f0eb;--surface:#fbfaf7;--surface2:#e8e3da;--ink:#171614;--muted:#6d675f;--line:#d7d1c6;--accent:#bd3c33;--up:#347e5b;--down:#bd3c33;--shadow:0 12px 32px rgba(29,25,20,.07)}html[data-theme="dark"]{--bg:#11100f;--surface:#1a1917;--surface2:#24221f;--ink:#f5f1e9;--muted:#aaa39a;--line:#34312d;--accent:#ef7168;--up:#63b78d;--down:#ef7168;--shadow:0 14px 40px rgba(0,0,0,.24)}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.shell{max-width:1040px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 20px calc(92px + env(safe-area-inset-bottom))}
+.topbar{position:sticky;top:0;z-index:10;margin:0 -8px;padding:10px 8px 14px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(16px);display:flex;justify-content:space-between;align-items:center}
+.brand{font:800 13px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2em}
+.actions{display:flex;gap:8px}
+.btn{height:40px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hero{padding:36px 0 18px}
+.eyebrow{font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent);letter-spacing:.14em}
+.hero h1{font-size:clamp(40px,8vw,72px);letter-spacing:-.06em;line-height:.95;margin:14px 0 16px}
+.hero p{font-family:Georgia,serif;color:var(--muted);font-size:18px;line-height:1.55;max-width:680px;margin:0}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.06em}
+.pill.risk{border-color:var(--accent);color:var(--accent)}
+.card{padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);margin:16px 0}
+.card h2{margin:0 0 3px;font-size:19px;letter-spacing:-.02em}
+.card .kicker{font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent);letter-spacing:.1em;margin-bottom:6px}
+.card .sub{margin:0 0 16px;color:var(--muted);font-family:Georgia,serif;font-size:13.5px;line-height:1.55}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.05em}
+.field input,.field select,.field textarea{height:42px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:0 10px;font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.field textarea{height:auto;min-height:64px;padding:8px 10px;font-family:Georgia,serif;font-size:13px;resize:vertical}
+.rowactions{display:flex;justify-content:flex-end}
+.metricsgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:4px 0 16px}
+.metric{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.metric label{display:block;font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);letter-spacing:.06em}
+.metric strong{display:block;font-size:19px;margin-top:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.metric.breach{border-color:var(--accent)}
+.metric.breach strong{color:var(--accent)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:820px}
+th,td{padding:10px 12px;text-align:left;font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-size:9px;letter-spacing:.06em;background:var(--surface2);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+.up{color:var(--up)}.down{color:var(--down)}
+.badge{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid var(--line);border-radius:999px;font-size:8px;letter-spacing:.06em;color:var(--muted)}
+.badge.sample{border-color:var(--accent);color:var(--accent)}
+.flag{display:inline-block;padding:3px 7px;border-radius:999px;font-size:8px;font-weight:800;letter-spacing:.04em;margin:1px 3px 1px 0;border:1px solid var(--accent);color:var(--accent)}
+.remove{width:30px;height:30px;border:1px solid var(--line);border-radius:50%;background:var(--bg);color:var(--muted);font-size:15px;cursor:pointer;line-height:1}
+.empty{padding:40px 18px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font:700 11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+.alertbar{border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface));border-radius:14px;padding:16px 18px;margin:16px 0}
+.alertbar.clear{border-color:var(--up);background:color-mix(in srgb,var(--up) 9%,var(--surface))}
+.alertbar h3{margin:0 0 8px;font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}
+.alertbar ul{margin:0;padding-left:18px;font:600 12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
+.alertbar.block{border-width:2px}
+.regimeout{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.regimebadge{font:800 11px ui-monospace,SFMono-Regular,Menlo,monospace;padding:8px 12px;border-radius:999px;background:var(--ink);color:var(--bg);letter-spacing:.04em}
+.regimenote{font-family:Georgia,serif;font-size:13px;color:var(--muted);flex:1;min-width:220px}
+.jsonbox{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;font:600 11.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word;max-height:520px;overflow:auto;margin:0}
+.footer-note{font-family:Georgia,serif;font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:6px}
+.bottomnav{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;gap:6px;padding:6px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(16px);box-shadow:var(--shadow);z-index:20}
+.bottomnav a{padding:11px 15px;border-radius:999px;color:var(--muted);text-decoration:none;font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace}
+.bottomnav a.active{background:var(--ink);color:var(--bg)}
+@media(max-width:620px){.shell{padding-left:14px;padding-right:14px}.hero{padding-top:26px}.hero h1{font-size:48px}.actions .homeText{display:none}.card{padding:16px}}
+</style></head>
+<body>
+<main class="shell">
+<header class="topbar">
+<div class="brand">ALPHAVEDA</div>
+<div class="actions">
+<a class="btn" href="index.html"><span class="homeText">HOME</span><span>⌂</span></a>
+<button class="btn" id="resetBtn">RESET</button>
+</div>
+</header>
+
+<section class="hero">
+<div class="eyebrow">HIGH-BETA PORTFOLIO ENGINE — NSE / BSE</div>
+<h1>Discipline, not hype.</h1>
+<p>A quantitative guardrail engine for high-conviction, high-beta Indian portfolios. It grounds every verdict in the macro inputs you supply, enforces position-sizing and drawdown limits, estimates STCG/LTCG tax drag, and outputs a structured action plan. It never places an order.</p>
+<div class="pills">
+<span class="pill">ADVISORY ONLY</span>
+<span class="pill">NO ORDER EXECUTION</span>
+<span class="pill">ZERO-HALLUCINATION INPUTS</span>
+<span class="pill risk">SEBI: VERY HIGH RISK</span>
+</div>
+</section>
+
+<div id="alertsWrap"></div>
+
+<section class="card">
+<div class="kicker">SECTION 1 · DATA GROUNDING</div>
+<h2>Market Regime</h2>
+<p class="sub">Every verdict is conditioned on these macro inputs. Missing fields are flagged <code>DATA_INCOMPLETE</code> and force a defensive posture. Stale portfolio prices (&gt;15 min old during NSE hours) block plan generation.</p>
+<div class="formgrid">
+<div class="field"><label>NIFTY 50 vs 50-DMA</label><select id="nifty50"><option value="">— select —</option><option value="ABOVE">ABOVE</option><option value="BELOW">BELOW</option></select></div>
+<div class="field"><label>NIFTY 50 vs 200-DMA</label><select id="nifty200"><option value="">— select —</option><option value="ABOVE">ABOVE</option><option value="BELOW">BELOW</option></select></div>
+<div class="field"><label>INDIA VIX</label><input id="vix" type="number" step="0.1" min="0" placeholder="e.g. 13.2"></div>
+<div class="field"><label>FII / DII NET FLOW</label><select id="fiidii"><option value="">— select —</option><option value="NET_BUYERS">NET_BUYERS</option><option value="NET_SELLERS">NET_SELLERS</option><option value="MIXED">MIXED</option></select></div>
+<div class="field"><label>PORTFOLIO PRICES AS OF</label><input id="pricesAsOf" type="datetime-local"></div>
+</div>
+<div class="regimeout" id="regimeOut"></div>
+</section>
+
+<section class="card">
+<div class="kicker">SECTION 3 · POSITION SIZING GUARDRAILS</div>
+<h2>Portfolio Holdings</h2>
+<p class="sub">Single-stock cap 10%, micro-cap/illiquid cap 3–5%, liquid buffer never below 5%. Loaded with an illustrative sample position set — edit or remove it freely.</p>
+<div class="formgrid">
+<div class="field"><label>SYMBOL</label><input id="hSymbol" placeholder="NSE:TICKER"></div>
+<div class="field"><label>CATEGORY</label><select id="hCategory"><option value="LARGE_CAP">LARGE_CAP</option><option value="MID_CAP">MID_CAP</option><option value="SMALL_CAP">SMALL_CAP</option><option value="MICRO_CAP">MICRO_CAP</option><option value="SECTORAL_MOMENTUM">SECTORAL_MOMENTUM</option><option value="DERIVATIVE_HEDGE">DERIVATIVE_HEDGE</option><option value="LIQUID_CASH">LIQUID_CASH</option></select></div>
+<div class="field"><label>QUANTITY</label><input id="hQty" type="number" step="any" min="0"></div>
+<div class="field"><label>AVG COST ₹</label><input id="hAvgCost" type="number" step="any" min="0"></div>
+<div class="field"><label>LTP ₹</label><input id="hPrice" type="number" step="any" min="0"></div>
+<div class="field"><label>ACQUIRED ON</label><input id="hDate" type="date"></div>
+<div class="field"><label>BETA (opt.)</label><input id="hBeta" type="number" step="0.01"></div>
+</div>
+<div class="rowactions"><button class="btn primary" id="addHoldingBtn">ADD HOLDING</button></div>
+<div class="metricsgrid" id="holdingMetrics"></div>
+<div class="tablewrap"><table id="holdingsTable"></table></div>
+</section>
+
+<section class="card">
+<div class="kicker">SECTION 3 · INVALIDATION &amp; TAX-AWARE REBALANCING</div>
+<h2>Recommended Changes</h2>
+<p class="sub">BUY_ADD entries require a 1:2.5 minimum risk-reward ratio against the stated invalidation level. SELL_TRIM entries matched to a holding above estimate STCG (20%) / LTCG (12.5% above the ₹1.25L exemption) tax drag.</p>
+<div class="formgrid">
+<div class="field"><label>SYMBOL</label><input id="rSymbol" placeholder="NSE:TICKER"></div>
+<div class="field"><label>ACTION</label><select id="rAction"><option value="BUY_ADD">BUY_ADD</option><option value="SELL_TRIM">SELL_TRIM</option><option value="HOLD">HOLD</option></select></div>
+<div class="field"><label>CATEGORY</label><select id="rCategory"><option value="LARGE_CAP">LARGE_CAP</option><option value="MID_CAP">MID_CAP</option><option value="SMALL_CAP">SMALL_CAP</option><option value="MICRO_CAP">MICRO_CAP</option><option value="SECTORAL_MOMENTUM">SECTORAL_MOMENTUM</option><option value="DERIVATIVE_HEDGE">DERIVATIVE_HEDGE</option><option value="LIQUID_CASH">LIQUID_CASH</option></select></div>
+<div class="field"><label>TARGET WEIGHT %</label><input id="rTargetWeight" type="number" step="0.1" min="0" max="100"></div>
+<div class="field"><label>ENTRY ZONE LOW ₹</label><input id="rEntryLow" type="number" step="any"></div>
+<div class="field"><label>ENTRY ZONE HIGH ₹</label><input id="rEntryHigh" type="number" step="any"></div>
+<div class="field"><label>TARGET LOW ₹</label><input id="rTargetLow" type="number" step="any"></div>
+<div class="field"><label>TARGET HIGH ₹</label><input id="rTargetHigh" type="number" step="any"></div>
+<div class="field"><label>INVALIDATION ₹</label><input id="rInvalidation" type="number" step="any"></div>
+<div class="field"><label>EST. ALPHA ₹ (SELL_TRIM)</label><input id="rEstAlpha" type="number" step="any" min="0"></div>
+</div>
+<div class="rowactions"><button class="btn primary" id="addRecBtn">ADD RECOMMENDATION</button></div>
+<div class="tablewrap"><table id="recsTable"></table></div>
+<div class="formgrid" style="margin-top:14px">
+<div class="field" style="grid-column:1/-1"><label>STRATEGIC THESIS — FUNDAMENTAL CATALYSTS</label><textarea id="thesisCatalysts" placeholder="e.g. Q3 revenue growth +30%, order book expansion…"></textarea></div>
+<div class="field" style="grid-column:1/-1"><label>DOWNSIDE MITIGATION</label><textarea id="thesisMitigation" placeholder="e.g. Invalidation set below the 200-EMA support…"></textarea></div>
+</div>
+</section>
+
+<section class="card">
+<div class="kicker">SECTION 4 · STRUCTURED OUTPUT</div>
+<h2>Portfolio Action Plan (JSON)</h2>
+<p class="sub">Regenerates live from the sections above. Generation is blocked while portfolio prices are stale during NSE market hours.</p>
+<div class="rowactions" style="justify-content:flex-start;gap:8px;margin-bottom:12px">
+<button class="btn" id="copyJsonBtn">COPY JSON</button>
+<button class="btn" id="downloadJsonBtn">DOWNLOAD JSON</button>
+</div>
+<pre class="jsonbox" id="jsonOut"></pre>
+<p class="footer-note">Advisory output only — verify all prices and macro data against a live terminal before acting. AlphaVeda never executes, routes, or places trades.</p>
+</section>
+
+</main>
+<nav class="bottomnav" aria-label="Mini Apps">
+<a href="index.html">HOME</a>
+<a href="wire.html">WIRE</a>
+<a href="ticker.html">TICKER</a>
+<a class="active" href="alphaveda.html">ALPHAVEDA</a>
+</nav>
+<script>
+const HOLD_KEY='av_holdings_v1',RECS_KEY='av_recs_v1',REGIME_KEY='av_regime_v1',PEAK_KEY='av_peak_v1',THESIS_KEY='av_thesis_v1';
+const store={get:(k,f=null)=>{try{const v=localStorage.getItem(k);return v===null?f:JSON.parse(v)}catch{return f}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const $=s=>document.querySelector(s);
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function inr(n){return Number.isFinite(n)?'₹'+Math.round(n).toLocaleString('en-IN'):'—'}
+function pct(n,d=1){return Number.isFinite(n)?n.toFixed(d)+'%':'—'}
+
+function seedHoldings(){return [
+{id:uid(),symbol:'NSE:RVNL',category:'SECTORAL_MOMENTUM',qty:199,avgCost:380,currentPrice:452,acqDate:'2025-03-10',beta:1.8,seed:true},
+{id:uid(),symbol:'NSE:SUZLON',category:'MID_CAP',qty:1324,avgCost:55,currentPrice:68,acqDate:'2025-06-02',beta:2.1,seed:true},
+{id:uid(),symbol:'NSE:MAZDOCK',category:'MICRO_CAP',qty:23,avgCost:2600,currentPrice:3100,acqDate:'2024-11-20',beta:1.6,seed:true},
+{id:uid(),symbol:'LIQUIDBEES',category:'LIQUID_CASH',qty:750000,avgCost:1,currentPrice:1,acqDate:'2025-01-01',beta:0,seed:true}
+]}
+function seedRecs(){return [
+{id:uid(),symbol:'NSE:DATAPATTNS',action:'BUY_ADD',category:'SMALL_CAP',targetWeight:5,entryLow:2650,entryHigh:2720,targetLow:3150,targetHigh:3450,invalidation:2480,estAlpha:0,seed:true},
+{id:uid(),symbol:'NSE:RVNL',action:'SELL_TRIM',category:'SECTORAL_MOMENTUM',targetWeight:6,entryLow:'',entryHigh:'',targetLow:'',targetHigh:'',invalidation:'',estAlpha:20000,seed:true}
+]}
+
+function nseOpenNow(){const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Kolkata',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()),v=Object.fromEntries(parts.map(p=>[p.type,p.value])),mins=(Number(v.hour)%24)*60+Number(v.minute);return !['Sat','Sun'].includes(v.weekday)&&mins>=555&&mins<930}
+
+function computeRegime(){
+const r=store.get(REGIME_KEY,{});
+const missing=[];
+if(!r.nifty50)missing.push('Nifty vs 50-DMA');
+if(!r.nifty200)missing.push('Nifty vs 200-DMA');
+if(r.vix===undefined||r.vix===null||r.vix==='')missing.push('India VIX');
+if(!r.fiidii)missing.push('FII/DII Net Flow');
+const vixNum=Number(r.vix);
+let trend='NEUTRAL';
+if(r.nifty200==='BELOW')trend='BEARISH';else if(r.nifty50==='ABOVE')trend='BULLISH';
+let label,notes;
+if(missing.length){label='DATA_INCOMPLETE — DEFENSIVE';notes='Missing: '+missing.join(', ')+'. Defaulting to a defensive posture until macro inputs are supplied.'}
+else if(r.nifty50==='ABOVE'&&vixNum<14&&r.fiidii==='NET_BUYERS'){label='HIGH-BULL';notes='Up to 90% high-beta equity exposure permissible. Use trailing targets to capture asymmetric upside.'}
+else if(vixNum>18){label='VOLATILE / DISTRIBUTION';notes='Scale back equity exposure 30–40%. Rotate into liquid funds/overnight ETFs or add defensive hedges.'}
+else if(r.nifty200==='BELOW'&&r.fiidii==='NET_SELLERS'){label='BEAR / PANIC';notes='Hold a 25–30% cash/liquid buffer. Favor mispriced high-growth names or index put hedges.'}
+else{label='NEUTRAL / TRANSITION';notes='No extreme regime triggered. Maintain standard position-sizing discipline.'}
+let stale=false;
+if(r.pricesAsOf){const diffMin=(Date.now()-new Date(r.pricesAsOf).getTime())/60000;stale=diffMin>15&&nseOpenNow()}
+return{raw:r,missing,trend,vix:vixNum,label,notes,stale}
+}
+
+function computeHoldings(){
+let list=store.get(HOLD_KEY,null);
+if(!Array.isArray(list)){list=seedHoldings();store.set(HOLD_KEY,list)}
+const rows=list.map(h=>({...h}));
+rows.forEach(r=>{r.value=r.category==='LIQUID_CASH'?(Number(r.qty)||0):(Number(r.qty)||0)*(Number(r.currentPrice)||0)});
+const total=rows.reduce((s,r)=>s+r.value,0);
+rows.forEach(r=>{
+r.weight=total>0?r.value/total*100:0;
+r.pnlPct=(r.category==='LIQUID_CASH'||!Number(r.avgCost))?null:(Number(r.currentPrice)-Number(r.avgCost))/Number(r.avgCost)*100;
+r.holdingDays=r.acqDate?Math.floor((Date.now()-new Date(r.acqDate).getTime())/86400000):null;
+r.taxBucket=r.category==='LIQUID_CASH'?'—':(r.holdingDays===null?'UNKNOWN':(r.holdingDays>=365?'LTCG':'STCG'));
+r.flags=[];
+if(r.category!=='LIQUID_CASH'&&r.weight>10.0001)r.flags.push('SINGLE_STOCK_LIMIT_BREACH');
+if(r.category==='MICRO_CAP'&&r.weight>5.0001)r.flags.push('MICRO_CAP_LIMIT_BREACH');
+});
+const cashWeight=total>0?rows.filter(r=>r.category==='LIQUID_CASH').reduce((s,r)=>s+r.weight,0):0;
+const beta=total>0?rows.reduce((s,r)=>s+(r.category==='LIQUID_CASH'?0:(Number(r.beta)||1))*r.value,0)/total:0;
+return{rows,total,cashWeight,beta}
+}
+
+function computeDrawdown(total){
+let peak=store.get(PEAK_KEY,0);
+if(total>peak){peak=total;store.set(PEAK_KEY,peak)}
+const drawdown=peak>0?Math.max(0,(peak-total)/peak*100):0;
+return{peak,drawdown,breach:drawdown>10}
+}
+
+function weakestPerformers(rows){
+const eligible=rows.filter(r=>r.category!=='LIQUID_CASH'&&Number.isFinite(r.pnlPct)).sort((a,b)=>a.pnlPct-b.pnlPct);
+const n=Math.max(1,Math.ceil(eligible.length*0.2));
+return eligible.slice(0,n)
+}
+
+function computeRecs(holdingRows,total){
+let list=store.get(RECS_KEY,null);
+if(!Array.isArray(list)){list=seedRecs();store.set(RECS_KEY,list)}
+let stcgTax=0,ltcgGainSum=0;
+const rows=list.map(rec=>{
+const match=holdingRows.find(h=>String(h.symbol).toUpperCase()===String(rec.symbol).toUpperCase());
+const currentWeight=match?match.weight:0;
+const out={...rec,currentWeight,flags:[],rrr:null,expectedDrawdownPct:null,estGain:null,estTax:null,taxBucket:null};
+if(rec.action==='BUY_ADD'){
+const entryLow=Number(rec.entryLow),entryHigh=Number(rec.entryHigh),targetLow=Number(rec.targetLow),targetHigh=Number(rec.targetHigh),inval=Number(rec.invalidation);
+if([entryLow,entryHigh,targetLow,targetHigh,inval].every(Number.isFinite)){
+const entryMid=(entryLow+entryHigh)/2,targetMid=(targetLow+targetHigh)/2,risk=entryMid-inval,reward=targetMid-entryMid;
+out.expectedDrawdownPct=entryMid>0?risk/entryMid*100:null;
+if(risk<=0){out.flags.push('INVALID_INVALIDATION_LEVEL')}else{out.rrr=reward/risk;if(out.rrr<2.5)out.flags.push('RRR_BELOW_MINIMUM')}
+}else{out.flags.push('INCOMPLETE_PRICE_LEVELS')}
+const tgt=Number(rec.targetWeight);
+if(Number.isFinite(tgt)){if(tgt>10.0001)out.flags.push('SINGLE_STOCK_LIMIT_BREACH');if(rec.category==='MICRO_CAP'&&tgt>5.0001)out.flags.push('MICRO_CAP_LIMIT_BREACH')}
+}
+if(rec.action==='SELL_TRIM'&&match){
+const weightDelta=currentWeight-(Number(rec.targetWeight)||0);
+if(weightDelta>0&&total>0){
+const valueToSell=weightDelta/100*total;
+const qtySell=match.category==='LIQUID_CASH'?valueToSell:valueToSell/(Number(match.currentPrice)||1);
+const gain=(Number(match.currentPrice)-Number(match.avgCost))*qtySell;
+out.estGain=gain;out.taxBucket=match.taxBucket;
+if(match.taxBucket==='LTCG')ltcgGainSum+=Math.max(0,gain);
+else if(match.taxBucket==='STCG'){const t=Math.max(0,gain)*0.20;stcgTax+=t;out.estTax=t}
+}
+}
+return out
+});
+const ltcgTaxable=Math.max(0,ltcgGainSum-125000);
+const ltcgTax=ltcgTaxable*0.125;
+rows.forEach(r=>{if(r.taxBucket==='LTCG'&&r.estGain>0){const share=ltcgGainSum>0?r.estGain/ltcgGainSum:0;r.estTax=ltcgTax*share}});
+const totalEstTax=stcgTax+ltcgTax;
+const totalEstAlpha=rows.filter(r=>r.action==='SELL_TRIM').reduce((s,r)=>s+(Number(r.estAlpha)||0),0);
+const taxWarning=totalEstTax>0&&totalEstAlpha>0&&totalEstTax>totalEstAlpha;
+rows.forEach(r=>{if(r.action==='SELL_TRIM'&&r.estTax>0&&Number(r.estAlpha)>0&&r.estTax>Number(r.estAlpha))r.flags.push('TAX_EFFICIENCY_WARNING')});
+return{rows,stcgTax,ltcgTax,totalEstTax,ltcgGainSum,ltcgTaxable,totalEstAlpha,taxWarning}
+}
+
+function buildAlerts(regime,hold,dd,recs){
+const alerts=[];
+if(regime.missing.length)alerts.push({level:'warn',code:'DATA_INCOMPLETE',text:'Missing macro inputs: '+regime.missing.join(', ')+'. Defaulting to defensive posture.'});
+if(regime.stale)alerts.push({level:'block',code:'STALE_PRICE_DATA',text:'Portfolio prices are older than 15 minutes during NSE market hours. Plan generation is rejected until "Prices as of" is refreshed.'});
+if(hold.total>0&&hold.cashWeight<4.9999)alerts.push({level:'warn',code:'CASH_BUFFER_BREACH',text:'Liquid/cash buffer is '+pct(hold.cashWeight)+', below the 5% strategic minimum.'});
+if(regime.label==='BEAR / PANIC'&&hold.total>0&&(hold.cashWeight<25||hold.cashWeight>30))alerts.push({level:'warn',code:'BEAR_CASH_TARGET',text:'Bear/Panic regime calls for a 25–30% cash buffer; current buffer is '+pct(hold.cashWeight)+'.'});
+if(dd.breach){const weak=weakestPerformers(hold.rows).map(r=>r.symbol).join(', ');alerts.push({level:'block',code:'DEFENSIVE_REBALANCE',text:'Portfolio is down '+pct(dd.drawdown)+' from its tracked peak (>10%). Trim the weakest 20% of high-beta performers ('+(weak||'none identified')+') and shift toward capital preservation.'})}
+hold.rows.forEach(r=>r.flags.forEach(f=>alerts.push({level:'warn',code:f,text:r.symbol+': '+f.replace(/_/g,' ')})));
+recs.rows.forEach(r=>r.flags.forEach(f=>alerts.push({level:'warn',code:f,text:r.symbol+' ('+r.action+'): '+f.replace(/_/g,' ')})));
+return alerts
+}
+
+function buildJson(regime,hold,dd,recs,thesis){
+const actionType=dd.breach?'REBALANCE':((hold.rows.some(r=>r.category==='DERIVATIVE_HEDGE')||recs.rows.some(r=>r.category==='DERIVATIVE_HEDGE'))?'RISK_HEDGE':'PORTFOLIO_CONSTRUCTION');
+const swingDrawdowns=recs.rows.filter(r=>r.action==='BUY_ADD'&&Number.isFinite(r.expectedDrawdownPct)).map(r=>r.expectedDrawdownPct);
+const maxDrawdown=Math.max(dd.drawdown,...swingDrawdowns,0);
+const taxSummary=recs.totalEstTax>0?('Estimated tax on flagged trims: '+inr(recs.totalEstTax)+' (STCG '+inr(recs.stcgTax)+' @20%, LTCG '+inr(recs.ltcgTax)+' @12.5% above ₹1,25,000 exemption).'+(recs.taxWarning?' Tax impact exceeds the projected alpha entered — reconsider trim sizing or timing.':' Net alpha output justifies proceeding.')):'No taxable trims in the current plan.';
+return{
+market_regime:{nifty_trend:regime.missing.length?'NEUTRAL (DATA_INCOMPLETE)':regime.trend,india_vix:Number.isFinite(regime.vix)?regime.vix:null,fii_dii_bias:regime.raw.fiidii||'UNKNOWN'},
+portfolio_action_plan:{action_type:actionType,recommended_changes:recs.rows.map(r=>({symbol:r.symbol,recommendation:r.action,current_weight:Number((r.currentWeight||0).toFixed(2)),target_weight:Number((Number(r.targetWeight)||0).toFixed(2)),suggested_entry_zone:[Number.isFinite(Number(r.entryLow))&&r.entryLow!==''?Number(r.entryLow):null,Number.isFinite(Number(r.entryHigh))&&r.entryHigh!==''?Number(r.entryHigh):null],target_price_horizon:[Number.isFinite(Number(r.targetLow))&&r.targetLow!==''?Number(r.targetLow):null,Number.isFinite(Number(r.targetHigh))&&r.targetHigh!==''?Number(r.targetHigh):null],invalidation_level:Number.isFinite(Number(r.invalidation))&&r.invalidation!==''?Number(r.invalidation):null,risk_reward_ratio:Number.isFinite(r.rrr)?('1:'+r.rrr.toFixed(1)):'N/A'}))},
+risk_and_tax_analysis:{portfolio_beta:Number((hold.beta||0).toFixed(2)),max_estimated_drawdown:maxDrawdown.toFixed(1)+'%',tax_impact_summary:taxSummary,sebi_risk_classification:'VERY HIGH RISK'},
+strategic_thesis:{fundamental_catalysts:thesis.catalysts||'Not provided.',downside_mitigation:thesis.mitigation||'Not provided.'},
+system_alerts:buildAlerts(regime,hold,dd,recs).map(a=>a.code)
+}
+}
+
+function renderRegimeControls(){
+const r=store.get(REGIME_KEY,{});
+$('#nifty50').value=r.nifty50||'';$('#nifty200').value=r.nifty200||'';$('#vix').value=r.vix??'';$('#fiidii').value=r.fiidii||'';$('#pricesAsOf').value=r.pricesAsOf||'';
+['nifty50','nifty200','vix','fiidii','pricesAsOf'].forEach(id=>{$('#'+id).onchange=()=>{const cur=store.get(REGIME_KEY,{});cur[id]=$('#'+id).value;store.set(REGIME_KEY,cur);renderAll()}})
+}
+
+function renderRegimeOut(regime){
+$('#regimeOut').innerHTML=`<span class="regimebadge">${esc(regime.label)}</span><span class="regimenote">${esc(regime.notes)}</span>`
+}
+
+function renderHoldings(hold){
+const rows=hold.rows;
+$('#holdingsTable').innerHTML=rows.length?('<thead><tr><th>SYMBOL</th><th>CATEGORY</th><th>QTY</th><th>AVG COST</th><th>LTP</th><th>VALUE</th><th>WEIGHT</th><th>P&amp;L</th><th>TAX BUCKET</th><th>BETA</th><th>FLAGS</th><th></th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${esc(r.symbol)}${r.seed?'<span class="badge sample">SAMPLE</span>':''}</td><td>${esc(r.category)}</td><td>${r.category==='LIQUID_CASH'?'—':r.qty}</td><td>${r.category==='LIQUID_CASH'?'—':inr(Number(r.avgCost))}</td><td>${r.category==='LIQUID_CASH'?'—':inr(Number(r.currentPrice))}</td><td>${inr(r.value)}</td><td>${pct(r.weight)}</td><td class="${Number.isFinite(r.pnlPct)?(r.pnlPct>=0?'up':'down'):''}">${Number.isFinite(r.pnlPct)?pct(r.pnlPct):'—'}</td><td>${esc(r.taxBucket)}</td><td>${r.category==='LIQUID_CASH'?'0.00':(Number(r.beta)||1).toFixed(2)}</td><td>${r.flags.map(f=>`<span class="flag">${esc(f.replace(/_/g,' '))}</span>`).join('')}</td><td><button class="remove" data-id="${r.id}" aria-label="Remove ${esc(r.symbol)}">×</button></td></tr>`).join('')+'</tbody>'):'';
+if(!rows.length)$('#holdingsTable').outerHTML='<div class="empty" id="holdingsTable">No holdings yet. Add a position above.</div>';
+document.querySelectorAll('#holdingsTable .remove').forEach(b=>b.onclick=()=>{let list=store.get(HOLD_KEY,[]);list=list.filter(x=>x.id!==b.dataset.id);store.set(HOLD_KEY,list);renderAll()});
+const dd=computeDrawdown(hold.total);
+$('#holdingMetrics').innerHTML=`
+<div class="metric"><label>TOTAL VALUE</label><strong>${inr(hold.total)}</strong></div>
+<div class="metric"><label>PORTFOLIO BETA</label><strong>${(hold.beta||0).toFixed(2)}</strong></div>
+<div class="metric${hold.total>0&&hold.cashWeight<5?' breach':''}"><label>CASH / LIQUID</label><strong>${pct(hold.cashWeight)}</strong></div>
+<div class="metric"><label>TRACKED PEAK</label><strong>${inr(dd.peak)}</strong></div>
+<div class="metric${dd.breach?' breach':''}"><label>DRAWDOWN FROM PEAK</label><strong>${pct(dd.drawdown)}</strong></div>`;
+return dd
+}
+
+function renderRecs(recs){
+const rows=recs.rows;
+$('#recsTable').innerHTML=rows.length?('<thead><tr><th>SYMBOL</th><th>ACTION</th><th>CUR WT</th><th>TGT WT</th><th>ENTRY ZONE</th><th>TARGET</th><th>INVALID.</th><th>RRR</th><th>SWING DD</th><th>TAX EST.</th><th>FLAGS</th><th></th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${esc(r.symbol)}${r.seed?'<span class="badge sample">SAMPLE</span>':''}</td><td>${esc(r.action)}</td><td>${pct(r.currentWeight)}</td><td>${pct(Number(r.targetWeight)||0)}</td><td>${r.entryLow!==''&&r.entryHigh!==''?inr(Number(r.entryLow))+' – '+inr(Number(r.entryHigh)):'—'}</td><td>${r.targetLow!==''&&r.targetHigh!==''?inr(Number(r.targetLow))+' – '+inr(Number(r.targetHigh)):'—'}</td><td>${r.invalidation!==''?inr(Number(r.invalidation)):'—'}</td><td>${Number.isFinite(r.rrr)?('1:'+r.rrr.toFixed(1)):'—'}</td><td>${Number.isFinite(r.expectedDrawdownPct)?pct(r.expectedDrawdownPct):'—'}</td><td>${Number.isFinite(r.estTax)&&r.estTax>0?inr(r.estTax):'—'}</td><td>${r.flags.map(f=>`<span class="flag">${esc(f.replace(/_/g,' '))}</span>`).join('')}</td><td><button class="remove" data-id="${r.id}" aria-label="Remove ${esc(r.symbol)}">×</button></td></tr>`).join('')+'</tbody>'):'';
+if(!rows.length)$('#recsTable').outerHTML='<div class="empty" id="recsTable">No recommended changes yet. Add one above.</div>';
+document.querySelectorAll('#recsTable .remove').forEach(b=>b.onclick=()=>{let list=store.get(RECS_KEY,[]);list=list.filter(x=>x.id!==b.dataset.id);store.set(RECS_KEY,list);renderAll()})
+}
+
+function renderAlerts(alerts){
+const wrap=$('#alertsWrap');
+if(!alerts.length){wrap.innerHTML='<div class="alertbar clear"><h3>NO ACTIVE GUARDRAIL ALERTS</h3></div>';return}
+const blocked=alerts.some(a=>a.level==='block');
+wrap.innerHTML=`<div class="alertbar${blocked?' block':''}"><h3>${blocked?'PROCESSING REJECTED — ':''}${alerts.length} ACTIVE ALERT${alerts.length>1?'S':''}</h3><ul>${alerts.map(a=>`<li><strong>${esc(a.code)}</strong> — ${esc(a.text)}</li>`).join('')}</ul></div>`
+}
+
+function renderJson(regime,hold,dd,recs,thesis,blocked){
+if(blocked){$('#jsonOut').textContent='// PROCESSING REJECTED\n// Reason: portfolio prices are stale (>15 min old) during live NSE market hours.\n// Update "Portfolio prices as of" in Section 1 to a current timestamp to resume.';$('#copyJsonBtn').disabled=true;$('#downloadJsonBtn').disabled=true;return}
+$('#copyJsonBtn').disabled=false;$('#downloadJsonBtn').disabled=false;
+const json=buildJson(regime,hold,dd,recs,thesis);
+$('#jsonOut').textContent=JSON.stringify(json,null,2)
+}
+
+function renderThesisControls(){
+const t=store.get(THESIS_KEY,{});
+$('#thesisCatalysts').value=t.catalysts||'';$('#thesisMitigation').value=t.mitigation||'';
+$('#thesisCatalysts').oninput=()=>{const cur=store.get(THESIS_KEY,{});cur.catalysts=$('#thesisCatalysts').value;store.set(THESIS_KEY,cur);renderAll()};
+$('#thesisMitigation').oninput=()=>{const cur=store.get(THESIS_KEY,{});cur.mitigation=$('#thesisMitigation').value;store.set(THESIS_KEY,cur);renderAll()}
+}
+
+function renderAll(){
+const regime=computeRegime();
+renderRegimeOut(regime);
+const hold=computeHoldings();
+const dd=renderHoldings(hold);
+const recs=computeRecs(hold.rows,hold.total);
+renderRecs(recs);
+const thesis=store.get(THESIS_KEY,{});
+const alerts=buildAlerts(regime,hold,dd,recs);
+renderAlerts(alerts);
+const blocked=alerts.some(a=>a.level==='block'&&a.code==='STALE_PRICE_DATA');
+renderJson(regime,hold,dd,recs,thesis,blocked)
+}
+
+function addHolding(){
+const symbol=$('#hSymbol').value.trim().toUpperCase();
+if(!symbol)return;
+const category=$('#hCategory').value;
+const qty=Number($('#hQty').value)||0;
+const avgCost=Number($('#hAvgCost').value)||0;
+const currentPrice=Number($('#hPrice').value)||0;
+const acqDate=$('#hDate').value;
+const beta=$('#hBeta').value===''?'':Number($('#hBeta').value);
+const list=store.get(HOLD_KEY,[]);
+list.push({id:uid(),symbol,category,qty,avgCost,currentPrice,acqDate,beta,seed:false});
+store.set(HOLD_KEY,list);
+$('#hSymbol').value='';$('#hQty').value='';$('#hAvgCost').value='';$('#hPrice').value='';$('#hDate').value='';$('#hBeta').value='';
+renderAll()
+}
+
+function addRec(){
+const symbol=$('#rSymbol').value.trim().toUpperCase();
+if(!symbol)return;
+const rec={id:uid(),symbol,action:$('#rAction').value,category:$('#rCategory').value,targetWeight:$('#rTargetWeight').value,entryLow:$('#rEntryLow').value,entryHigh:$('#rEntryHigh').value,targetLow:$('#rTargetLow').value,targetHigh:$('#rTargetHigh').value,invalidation:$('#rInvalidation').value,estAlpha:$('#rEstAlpha').value,seed:false};
+const list=store.get(RECS_KEY,[]);
+list.push(rec);
+store.set(RECS_KEY,list);
+['rSymbol','rTargetWeight','rEntryLow','rEntryHigh','rTargetLow','rTargetHigh','rInvalidation','rEstAlpha'].forEach(id=>$('#'+id).value='');
+renderAll()
+}
+
+$('#addHoldingBtn').onclick=addHolding;
+$('#addRecBtn').onclick=addRec;
+$('#resetBtn').onclick=()=>{if(!confirm('Reset all AlphaVeda data on this device? This clears holdings, recommendations, regime inputs, and the tracked peak value.'))return;[HOLD_KEY,RECS_KEY,REGIME_KEY,PEAK_KEY,THESIS_KEY].forEach(k=>localStorage.removeItem(k));renderRegimeControls();renderThesisControls();renderAll()};
+$('#copyJsonBtn').onclick=async()=>{try{await navigator.clipboard.writeText($('#jsonOut').textContent);const b=$('#copyJsonBtn'),old=b.textContent;b.textContent='COPIED';setTimeout(()=>b.textContent=old,1200)}catch{}};
+$('#downloadJsonBtn').onclick=()=>{const blob=new Blob([$('#jsonOut').textContent],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='alphaveda-plan.json';a.click();URL.revokeObjectURL(a.href)};
+
+renderRegimeControls();
+renderThesisControls();
+renderAll();
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body></html>
